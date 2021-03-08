@@ -1,10 +1,13 @@
 { pkgs ? import <nixpkgs> {}
 }:
-  pkgs.mkShell {
+  let 
+    angr = import ./angr { inherit pkgs; };
+  in pkgs.mkShell {
     name="pwnable";
+
     buildInputs = [
      # Language for writing scripts
-      pkgs.python39
+      pkgs.python3
       pkgs.ruby_2_7
 
       # NeoVim & tmux rules
@@ -12,10 +15,13 @@
       pkgs.tmux
 
       # Pwntools, itself
-      pkgs.python39Packages.pwntools
+      pkgs.python3Packages.pwntools
+
+      # Symbolic Execution
+      angr.python3Packages.angr
     
       # Emulation
-      pkgs.python39Packages.unicorn
+      pkgs.python3Packages.unicorn
 
       # Debugging or Binary analysis
       pkgs.radare2
@@ -27,11 +33,6 @@
       pkgs.netcat
     ];
     shellHook = ''
-      echo "Live how you want!"
-    
-      echo "To-do List:"
-      echo " - angr"
-      echo " - miasm"
-      echo " - gef"
+      tmux -c 'echo "Live how you want!\n\n To-do List:\n - gef"
     '';
   }
