@@ -25,6 +25,7 @@
 
       # Debugging or Binary analysis
       pkgs.radare2
+      pkgs.python3Packages.r2pipe
       pkgs.ghidra-bin
       pkgs.gdb
 
@@ -33,6 +34,6 @@
       pkgs.netcat
     ];
     shellHook = ''
-      tmux -c 'echo "Live how you want!\n\n To-do List:\n - gef"
+      tmux
     '';
   }
