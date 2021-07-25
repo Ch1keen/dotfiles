@@ -1,6 +1,7 @@
 (specifications->manifest
   '("texlive"
-    "texmaker"
+    "emacs"
+    "emacs-auctex"
 
     "font-un"  ; korean font
     "glibc-locales"  ; locales
