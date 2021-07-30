@@ -1,12 +1,10 @@
 { pkgs ? import <nixpkgs> {}
 }:
-  let 
-    angr = import ./angr { inherit pkgs; };
-  in pkgs.mkShell {
+  pkgs.mkShell {
     name="pwnable";
 
     buildInputs = [
-     # Language for writing scripts
+      # Language for writing scripts
       pkgs.python3
       pkgs.ruby_2_7
 
@@ -17,9 +15,20 @@
       # Pwntools, itself
       pkgs.python3Packages.pwntools
 
-      # Symbolic Execution
-      angr.python3Packages.angr
-    
+      # Angr
+      (let
+        mach-nix = import (builtins.fetchGit {
+          url = "https://github.com/DavHau/mach-nix/";
+          ref = "refs/tags/3.3.0";
+        }) {};
+      in
+        mach-nix.mkPython {
+          requirements = ''
+            angr
+	  '';
+	}
+      )
+
       # Emulation
       pkgs.python3Packages.unicorn
 
