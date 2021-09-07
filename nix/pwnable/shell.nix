@@ -5,15 +5,15 @@
 
     buildInputs = [
       # Language for writing scripts
-      pkgs.python3
-      pkgs.ruby_2_7
+      pkgs.python39Full
+      pkgs.ruby_3_0
 
       # NeoVim & tmux rules
       pkgs.neovim
       pkgs.tmux
 
       # Pwntools, itself
-      pkgs.python3Packages.pwntools
+      pkgs.python39Packages.pwntools
 
       # Angr
       (let
@@ -30,11 +30,11 @@
       )
 
       # Emulation
+      pkgs.unicorn
       pkgs.python3Packages.unicorn
 
       # Debugging or Binary analysis
-      pkgs.radare2
-      pkgs.python3Packages.r2pipe
+      pkgs.rizin
       pkgs.ghidra-bin
       pkgs.gdb
 
