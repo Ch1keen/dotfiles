@@ -4,6 +4,10 @@
     name="pwnable";
 
     buildInputs = [
+      # Zsh
+      pkgs.zsh
+      pkgs.oh-my-zsh
+
       # Language for writing scripts
       pkgs.python39Full
       pkgs.ruby_3_0
@@ -25,8 +29,8 @@
         mach-nix.mkPython {
           requirements = ''
             angr
-	  '';
-	}
+	      '';
+	      }
       )
 
       # Emulation
@@ -34,6 +38,7 @@
       pkgs.python3Packages.unicorn
 
       # Debugging or Binary analysis
+      pkgs.radare2
       pkgs.rizin
       pkgs.ghidra-bin
       pkgs.gdb
@@ -43,6 +48,6 @@
       pkgs.netcat
     ];
     shellHook = ''
-      tmux
+      tmux -f ./tmux.conf
     '';
   }
