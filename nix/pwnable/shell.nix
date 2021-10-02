@@ -24,7 +24,8 @@
       in
         mach-nix.mkPython {
           requirements = ''
-            angr
+            qiling
+            miasm
 	      '';
 	      }
       )
