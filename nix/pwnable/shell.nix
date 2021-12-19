@@ -36,7 +36,6 @@
 
       # Debugging or Binary analysis
       pkgs.radare2
-      pkgs.rizin
       pkgs.ghidra-bin
       pkgs.gdb
 
@@ -45,6 +44,9 @@
       pkgs.netcat
     ];
     shellHook = ''
+      r2pm update
+      r2pm -i r2ghidra
+      r2pm -ci r2dec
       tmux
     '';
   }
