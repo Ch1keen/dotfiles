@@ -23,6 +23,10 @@
           qiling
         '';
       };
+    one_gadget = pkgs.bundlerEnv {
+        name = "one_gadget";
+        gemdir = ./.;
+      };
 
   in
     pkgs.mkShell {
@@ -32,12 +36,19 @@
         # Meta
         pkgs.glibcLocales
         pkgs.cmake
+        pkgs.gcc
+        pkgs.which
+        pkgs.git
+        pkgs.cacert
+        pkgs.openssl
 
         # Language for writing scripts
         pkgs.python39Full
         pkgs.python39Packages.pylint
+        pkgs.python39Packages.jedi
         pkgs.ruby_3_0
         pkgs.rubyPackages_3_0.pry
+        one_gadget.wrappedRuby
 
         # NeoVim & tmux rules
         pkgs.neovim
@@ -65,13 +76,14 @@
         # Default Networking
         pkgs.openssh
         pkgs.netcat
-
         pkgs.tree
       ];
       shellHook = ''
         r2pm update
         r2pm -i r2ghidra
         r2pm -ci r2dec
+        #r2pm -ci r2retdec
+        #r2pm -ci esilsolve
         export SHELL=$(which fish)
 
         tmux -2
