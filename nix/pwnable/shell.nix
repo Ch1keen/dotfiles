@@ -36,7 +36,6 @@
         # Meta
         pkgs.glibcLocales
         pkgs.cmake
-        pkgs.gcc
         pkgs.which
         pkgs.git
         pkgs.cacert
@@ -65,7 +64,10 @@
         # Emulation
         pkgs.unicorn
         pkgs.python3Packages.unicorn
+        pkgs.qemu
         pkgs.qemu_full
+        pkgs.qemu-utils
+        pkgs.gcc_multi
         qiling
 
         # Debugging or Binary analysis
