@@ -27,6 +27,7 @@
         name = "one_gadget";
         gemdir = ./.;
       };
+    esilsolve = import ./esilsolve.nix;
 
   in
     pkgs.mkShell {
@@ -57,9 +58,10 @@
         # Pwntools, itself
         pkgs.python39Packages.pwntools
 
-        # Angr
+        # SymbEx
         angr
         miasm
+	esilsolve
         
         # Emulation
         pkgs.unicorn
