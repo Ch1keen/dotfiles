@@ -3,7 +3,7 @@
   let
     mach-nix = import (builtins.fetchGit {
       url = "https://github.com/DavHau/mach-nix/";
-      ref = "refs/tags/3.3.0";
+      ref = "refs/tags/3.4.0";
     }) {};
     angr = mach-nix.mkPython {
         python = "python39Full";
@@ -41,6 +41,8 @@
         pkgs.git
         pkgs.cacert
         pkgs.openssl
+	pkgs.bat
+	pkgs.fd
 
         # Language for writing scripts
         pkgs.python39Full
@@ -76,6 +78,7 @@
         pkgs.radare2
         pkgs.ghidra-bin
         pkgs.pwndbg
+	pkgs.apktool
 
         # Default Networking
         pkgs.openssh
