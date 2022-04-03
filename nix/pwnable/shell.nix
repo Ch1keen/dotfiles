@@ -85,9 +85,8 @@
         r2pm -i r2ghidra
         r2pm -ci r2dec
         #r2pm -ci r2retdec
-        #r2pm -ci esilsolve
         export SHELL=$(which fish)
 
-        tmux -2
+        tmux -f ./tmux.conf
       '';
     }
