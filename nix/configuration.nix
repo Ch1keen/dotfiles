@@ -41,7 +41,7 @@
     enabled = "kime";
     kime.config = {
       indicator.icon_color = "White";
-      engine.hangul.laylout = "sebeolsik-3-90";
+      engine.hangul.layout = "sebeolsik-3-90";
     };
   };
   # console = {
@@ -81,7 +81,9 @@
   hardware.pulseaudio.enable = true;
 
   # Enable touchpad support (enabled default in most desktopManager).
-  # services.xserver.libinput.enable = true;
+  services.xserver.libinput.enable = true;
+  services.xserver.libinput.touchpad.naturalScrolling = true;
+  #services.xserver.synaptics.enable = true;
 
   # Enable GNU Guix Service
   # ref: https://euandre.org/2018/07/17/running-guix-on-nixos.html
@@ -108,7 +110,7 @@
         ch1keenUser = {
 	  ch1keen = {
 	    isNormalUser = true;
-	    extraGroups = [ "wheel" "docker" ];
+	    extraGroups = [ "wheel" "docker" "libvirtd" "audio" ];
 	    initialPassword = "aaaa";
 	  };
 	};
@@ -134,6 +136,9 @@
   };
 
   virtualisation.docker.enable = true;
+  virtualisation.libvirtd.enable = true;
+
+  programs.dconf.enable = true;
 
   nixpkgs.config = {
     allowUnfree = true;
@@ -143,6 +148,14 @@
       };
     };
   };
+
+  environment.variables = {
+    GTK_IM_MODULE = "kime";
+    QT4_IM_MODULE = "kime";
+    QT_IM_MODULE  = "kime";
+    XMODIFIERS    = "@im=kime";
+  };
+
   # List packages installed in system profile. To search, run:
   # $ nix search wget
   environment.systemPackages = with pkgs; [
@@ -156,10 +169,17 @@
     nodejs
     patchelf
     file
-#    nix-index-update
-#    nix-alien
     tdesktop  # It can then be run as `telegram-desktop`
     discord
+    virt-manager
+    docker-compose
+    minikube
+    kubectl
+    xfce.thunar
+    xfce.xfce4-icon-theme
+    tor-browser-bundle-bin
+    pavucontrol
+    gnome.simple-scan
   ];
 
   fonts.fonts = with pkgs; [
@@ -177,6 +197,8 @@
   # };
 
   # List services that you want to enable:
+  services.printing.enable = true;
+  services.printing.drivers = [ pkgs.gutenprint pkgs.hplip ];
 
   # Enable the OpenSSH daemon.
   # services.openssh.enable = true;
