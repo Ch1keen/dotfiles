@@ -36,6 +36,7 @@
 	    (specification->package "git")
 	    (specification->package "picom")
 	    (specification->package "xrandr")
+	    (specification->package "docker-compose")
             (specification->package "nss-certs"))
       %base-packages))
   (services
