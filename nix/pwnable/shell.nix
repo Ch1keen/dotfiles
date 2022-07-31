@@ -3,7 +3,7 @@
   let
     mach-nix = import (builtins.fetchGit {
       url = "https://github.com/DavHau/mach-nix/";
-      ref = "refs/tags/3.4.0";
+      ref = "refs/tags/3.5.0";
     }) {};
     angr = mach-nix.mkPython {
         python = "python39Full";
@@ -29,6 +29,16 @@
       };
     esilsolve = import ./esilsolve.nix;
 
+    my-python = pkgs.python39Full;
+    python-with-my-packages = my-python.withPackages (p: with p; [
+      pylint
+      jedi
+      pwntools
+      qiling
+      angr
+      miasm
+    ]);
+
   in
     pkgs.mkShell {
       name="pwnable";
@@ -43,11 +53,16 @@
         pkgs.openssl
 	pkgs.bat
 	pkgs.fd
+	pkgs.unzip
+	pkgs.perl
+        pkgs.tree
+	pkgs.jdk11
+        pkgs.gradle
+        pkgs.bison
+        pkgs.flex
 
         # Language for writing scripts
-        pkgs.python39Full
-        pkgs.python39Packages.pylint
-        pkgs.python39Packages.jedi
+	python-with-my-packages
         pkgs.ruby_3_0
         pkgs.rubyPackages_3_0.pry
         one_gadget.wrappedRuby
@@ -57,12 +72,9 @@
         pkgs.tmux
         pkgs.fish
 
-        # Pwntools, itself
-        pkgs.python39Packages.pwntools
-
         # SymbEx
-        angr
-        miasm
+        #angr
+        #miasm
 	esilsolve
         
         # Emulation
@@ -72,22 +84,28 @@
         pkgs.qemu_full
         pkgs.qemu-utils
         pkgs.gcc_multi
-        qiling
+        #qiling
 
         # Debugging or Binary analysis
         pkgs.radare2
         pkgs.ghidra-bin
         pkgs.pwndbg
+	pkgs.gdb
 	pkgs.apktool
 
         # Default Networking
         pkgs.openssh
         pkgs.netcat
-        pkgs.tree
       ];
       shellHook = ''
+	rm -rf /tmp/gradle &> /dev/null
+        mkdir /tmp/gradle 
+        export GRADLE_USER_HOME="/tmp/gradle" 
+        echo "org.gradle.java.home=${pkgs.jdk11}/lib/openjdk" > /tmp/gradle/gradle.properties
+
         r2pm update
-        r2pm -i r2ghidra
+        r2pm -ci r2ghidra
+        r2pm -ci r2ghidra-sleigh
         r2pm -ci r2dec
         #r2pm -ci r2retdec
         export SHELL=$(which fish)
