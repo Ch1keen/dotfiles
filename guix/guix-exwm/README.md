@@ -45,6 +45,10 @@
   https://github.com/sunrise-commander/sunrise-commander
 
   https://www.emacswiki.org/emacs/Sunrise_Commander
+  
+* Emacs Powerline
+
+  https://github.com/milkypostman/powerline
 
 ## See Also
 
