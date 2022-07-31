@@ -1,5 +1,7 @@
 # Guix + EXWM
 
+![GNU Guix with EXWM rice](https://github.com/Ch1keen/dotfiles/blob/abc2a05fde127667a9969fa38745de06ffc0a48c/guix/guix-exwm/GNU%20Guix%20+%20exwm.png)
+
 * OS: GNU Guix
 
 * WM: exwm
