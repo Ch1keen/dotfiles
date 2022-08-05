@@ -57,3 +57,5 @@
 [EXWM Wiki](https://github.com/ch11ng/exwm/wiki)
 
 [EXWM on Arch Linux Wiki](https://wiki.archlinux.org/title/EXWM)
+
+[Good Rice by quantumish](https://github.com/quantumish/.emacs.d)
