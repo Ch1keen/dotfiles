@@ -20,6 +20,7 @@
 	     "curl"
 	     "wget"
 	     "neovim"
+	     "ncurses"  ;; `clear` command
 
 	     ;; Web Browser
 	     "ungoogled-chromium"
@@ -36,6 +37,7 @@
 	     "nimf"
 
 	     ;; Ricing
+	     "alacritty"
 	     "feh"
 	     "polybar"
 	     "dunst"
