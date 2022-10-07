@@ -1,3 +1,7 @@
+;; If you can see the broken fonts in modeline,
+;; install necessary fonts by a command below:
+;; `M-x all-the-icons-install-fonts`
+
 (require 'package)
 (add-to-list 'package-archives '("melpa" . "https://melpa.org/packages/") t)
 (add-to-list 'package-archives '("gnu"   . "https://elpa.gnu.org/packages/") t)
@@ -40,6 +44,10 @@
   :init (doom-modeline-mode 1))
 (use-package highlight-indent-guides
   :ensure t)
+(use-package tree-sitter
+  :ensure t)
+(use-package tree-sitter-langs
+  :ensure t)
 
 (require 'highlight-indent-guides)
 (use-package highlight-indent-guides
@@ -55,7 +63,11 @@
   :ensure t
   :hook (prog-mode . rainbow-delimiters-mode))
 
+(require 'tree-sitter)
+(require 'tree-sitter-langs)
+
 (load-theme 'zenburn t)
+
 (custom-set-variables
  ;; custom-set-variables was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
@@ -75,8 +87,8 @@
 (menu-bar-mode -1)
 (tool-bar-mode -1)
 (scroll-bar-mode -1)
+(display-battery-mode 1)
 (fringe-mode 1)
-(display-time-mode t)
 (setq exwm-workspace-number 4)
 (exwm-enable)
 

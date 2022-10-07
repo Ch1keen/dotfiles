@@ -21,6 +21,14 @@
 	     "wget"
 	     "neovim"
 	     "ncurses"  ;; `clear` command
+	     "unzip"
+
+	     ;; Sound
+	     "pavucontrol"
+
+	     ;; Networking & Bluetooth
+	     "network-manager"
+	     "blueman"
 
 	     ;; Web Browser
 	     "ungoogled-chromium"
@@ -37,7 +45,7 @@
 	     "nimf"
 
 	     ;; Ricing
-	     "alacritty"
+	     "kitty"
 	     "feh"
 	     "polybar"
 	     "dunst"
