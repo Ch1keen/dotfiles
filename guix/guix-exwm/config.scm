@@ -2,24 +2,28 @@
 ;; by the graphical installer.
 
 (use-modules (gnu))
-(use-modules (gnu packages xorg))
 (use-modules (gnu packages shells))
 (use-modules (gnu services docker))
+(use-modules (nongnu packages linux))
 (use-service-modules desktop networking ssh xorg)
 
 (operating-system
   (locale "ko_KR.utf8")
   (timezone "Asia/Seoul")
+  (kernel linux)
+  (firmware (append
+	     (list iwlwifi-firmware ibt-hw-firmware)
+	     %base-firmware))
   (keyboard-layout (keyboard-layout "kr" "kr104"))
   (host-name "ch1keen-guix")
   (users (cons* (user-account
                   (name "ch1keen")
-                  (comment "Ch1Keen")
+                  (comment "Ch1keen")
                   (group "users")
 		  (shell (file-append fish "/bin/fish"))
                   (home-directory "/home/ch1keen")
                   (supplementary-groups
-                    '("wheel" "netdev" "audio" "video" "docker")))
+                    '("wheel" "netdev" "audio" "video" "docker" "lp")))
                 %base-user-accounts))
   (packages
     (append
@@ -27,45 +31,33 @@
             (specification->package "emacs-exwm")
             (specification->package
              "emacs-desktop-environment")
-	    (specification->package "icecat")
-	    (specification->package "perl")
-	    (specification->package "gcc")
-	    (specification->package "gcc-toolchain")
 	    (specification->package "glibc-locales")
-	    (specification->package "alacritty")
-	    (specification->package "git")
 	    (specification->package "picom")
-	    (specification->package "xrandr")
-	    (specification->package "docker-compose")
+	    (specification->package "dconf")
             (specification->package "nss-certs"))
       %base-packages))
   (services
-    (append
-      (list (service tor-service-type)
-	    (service docker-service-type)
-            (set-xorg-configuration
-              (xorg-configuration
-	        (modules
-		  (append
-		    (list xf86-video-vmware)
-		    %default-xorg-modules))
-	        (resolutions '((1600 1200)))
-                (keyboard-layout keyboard-layout))))
-      %desktop-services))
+   (append
+    (list (service lxqt-desktop-service-type)
+	  (service xfce-desktop-service-type)
+          (service docker-service-type)
+	  (bluetooth-service #:auto-enable? #t))
+    %desktop-services))
   (bootloader
     (bootloader-configuration
       (bootloader grub-bootloader)
-      (targets '("/dev/sda"))
+      (target "/dev/sda")
       (keyboard-layout keyboard-layout)))
-  (initrd-modules
-    (append '("mptspi") %base-initrd-modules))
-  (swap-devices
-    (list (uuid "e202baff-4a5c-419b-a0e8-c534511db7ea")))
+  (mapped-devices
+    (list (mapped-device
+            (source
+              (uuid "b86cc40b-5ab1-4219-a4b9-3c31e43c8561"))
+            (target "cryptroot")
+            (type luks-device-mapping))))
   (file-systems
     (cons* (file-system
              (mount-point "/")
-             (device
-               (uuid "c1ec5beb-3260-4564-9d28-4bc86b2ddd8f"
-                     'ext4))
-             (type "ext4"))
+             (device "/dev/mapper/cryptroot")
+             (type "ext4")
+             (dependencies mapped-devices))
            %base-file-systems)))
