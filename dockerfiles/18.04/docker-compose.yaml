@@ -1,0 +1,14 @@
+version: '3.9'
+
+services:
+  pwnable-18.04:
+    build: .
+    image: ch1keen/pwnable:18.04
+    container_name: pwnable-18.04
+    stdin_open: true
+    tty: true
+    priviledged: true
+    cap_add:
+      - SYS_PTRACE
+    volumes:
+      - /home/ch1keen/hacks:/hacks
