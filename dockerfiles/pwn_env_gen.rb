@@ -54,19 +54,30 @@ def check_dependencies
     puts "[!] 'which' is not installed, but it doesn't matter.\nTrying to check without 'which'..."
 
     deps[:podman] = system('podman --help', out: :close, err: :close).nil?
+    deps[:podman_compose] = system('podman-compose --help', out: :close, err: :close).nil?
     deps[:docker] = system('docker --help', out: :close, err: :close).nil?
     deps[:buildah] = system('buildah --version', out: :close, err: :close).nil?
   else
     puts "[+] 'which' is installed."
 
     deps[:podman] = system 'which podman', out: :close, err: :close
+    deps[:podman_compose] = system 'which podman-compose', out: :close, err: :close
     deps[:docker] = system 'which docker', out: :close, err: :close
     deps[:buildah] = system 'which buildah', out: :close, err: :close
   end
-  __check_dependencies(podman: deps[:podman], docker: deps[:docker], buildah: deps[:buildah])
 
-  core_pattern = '/proc/sys/kernel/core_pattern'.freeze
-  print "[!] This is the content of #{core_pattern}:\n    " + IO.read(core_pattern)
+  __check_dependencies(
+    podman: deps[:podman],
+    docker: deps[:docker],
+    buildah: deps[:buildah])
+
+  if macos?
+    puts '[?] Are you running this script on MacBook?'
+    puts '    Default core pattern of container is just "core" AFAIK.'
+  else
+    core_pattern = '/proc/sys/kernel/core_pattern'.freeze
+    print "[!] This is the content of #{core_pattern}:\n    " + IO.read(core_pattern)
+  end
 end
 
 def __check_dependencies(podman:, docker:, buildah:)
@@ -172,12 +183,13 @@ def generate_compose(ubuntu_version:, path:)
         container_name: pwnable-#{ubuntu_version}
         stdin_open: true
         tty: true
-        priviledged: true
         cap_add:
           - SYS_PTRACE
         volumes:
           - #{path}:/hacks
   COMPOSE
+
+  generated_compose + '    priviledged: true' unless macos?
 
   if File.exist? "./#{ubuntu_version}/docker-compose.yaml"
     raise "Cannot generate files: There are ./#{ubuntu_version}/docker-compose.yaml\nUse --force to ignore this error.\n(Files will be overwritten!)"
@@ -206,6 +218,10 @@ def generate
 
   # TODO: build podman images
   puts '[+] All Done! Happy Hacking!!'
+end
+
+def macos?
+  RUBY_PLATFORM.include? "darwin"
 end
 
 def banner
