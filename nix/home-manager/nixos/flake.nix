@@ -2,28 +2,34 @@
   description = "Home Manager configuration of Ch1keen";
 
   inputs = {
-    # Specify the source of Home Manager and Nixpkgs.
     nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";
+
+    darwin.url = "github:lnl7/nix-darwin";
+    darwin.inputs.nixpkgs.follows = "nixpkgs";
+
     home-manager = {
       url = "github:nix-community/home-manager";
       inputs.nixpkgs.follows = "nixpkgs";
     };
   };
 
-  outputs = { nixpkgs, home-manager, ... }:
-    let
-      system = "x86_64-linux";
-      pkgs = nixpkgs.legacyPackages.${system};
-    in {
-      homeConfigurations.ch1keen = home-manager.lib.homeManagerConfiguration {
-        inherit pkgs;
+  outputs = { nixpkgs, home-manager, darwin, ... }: {
+    # home-manager switch --flake '/home/ch1keen/.config/nixpkgs#ch1keen'
+    homeConfigurations.ch1keen = home-manager.lib.homeManagerConfiguration {
+      pkgs = nixpkgs.legacyPackages.x86_64-linux;
+      modules = [ platform/linux/home.nix ];
+    };
 
-        # Specify your home configuration modules here, for example,
-        # the path to your home.nix.
-        modules = [ ./home.nix ];
-
-        # Optionally use extraSpecialArgs
-        # to pass through arguments to home.nix
+    # darwin-rebuild switch --flake ~/.config/nix-darwin/
+    darwinConfigurations = {
+      "hanjeongjun-ui-MacBookPro" = darwin.lib.darwinSystem {
+        system = "x86_64-darwin";
+        modules = [
+          platform/darwin/configuration.nix
+          home-manager.darwinModules.home-manager
+          platform/darwin/home.nix
+        ];
       };
     };
+  };
 }
