@@ -2,30 +2,10 @@
 
 let
   # for Python
-  my-python-packages = python-packages: with python-packages; [
-    # Python Starter Pack
-    requests
-
-    # Python Development Tools
-    pylint
-    autopep8
-
-    # Hacking Related
-    pwntools
-  ];
-  python-with-my-packages = pkgs.python311.withPackages my-python-packages;
+  python-with-my-packages = pkgs.python311.withPackages (import ../../src/python-packages.nix);
 
   # for Ruby
-  my-ruby-packages = ruby-packages: with ruby-packages; [
-    pry
-    byebug
-    pry-byebug
-
-    solargraph
-    rubocop
-    rspec
-  ];
-  ruby-with-my-packages = pkgs.ruby_3_1.withPackages my-ruby-packages;
+  ruby-with-my-packages = pkgs.ruby_3_1.withPackages (import ../../src/ruby-packages.nix);
 in
  {
   # Home Manager needs a bit of information about you and the
