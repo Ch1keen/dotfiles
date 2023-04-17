@@ -27,7 +27,11 @@
         modules = [
           platform/darwin/configuration.nix
           home-manager.darwinModules.home-manager
-          platform/darwin/home.nix
+          {
+            home-manager.useGlobalPkgs = true;
+            home-manager.useUserPackages = true;
+            home-manager.users.hanjeongjun = import platform/darwin/home.nix;
+          }
         ];
       };
     };
