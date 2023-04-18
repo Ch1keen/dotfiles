@@ -1,11 +1,7 @@
 { config, pkgs, ... }:
 
 let
-  # for python
-  python-with-my-packages = pkgs.python311.withPackages (import ../../src/python-packages.nix);
-
-  # for ruby
-  ruby-with-my-packages = pkgs.ruby_3_2.withPackages (import ../../src/ruby-packages.nix);
+  basic_packages = import ../src/packages.nix { inherit pkgs; };
 in
  {
   # Home Manager needs a bit of information about you and the
@@ -23,59 +19,11 @@ in
   # changes in each release.
   home.stateVersion = "22.11";
 
-  home.packages = [
-    pkgs.fd
-    pkgs.bat
-    pkgs.bat-extras.prettybat
-    pkgs.file
-    pkgs.ripgrep
-    pkgs.jq
-    pkgs.unzip
-    pkgs.wget
-    pkgs.cmake
-    pkgs.gnumake
-
-    # Fonts
-    pkgs.d2coding
-    pkgs.nerdfonts
-    pkgs.nanum
-
-    # Programming Languages
-    pkgs.ghc
-    pkgs.clang
-    python-with-my-packages
-    ruby-with-my-packages
-    pkgs.rustup
-    pkgs.rust-analyzer
-    pkgs.guile_3_0
-    pkgs.chicken
-    pkgs.nodejs
-
-    # Hacking Related
-    pkgs.radare2
-    pkgs.clang-analyzer
-    pkgs.one_gadget
-
-    # Virtualisation
-    pkgs.qemu-utils
-    pkgs.cloud-utils
-
-    # OCI(Open Container Initiative)
-    pkgs.podman-compose
-    pkgs.buildah
-    pkgs.podman-tui
-
-    # Linter & LSP
-    pkgs.clang-tools
-
-    # Eye candy
-    pkgs.neofetch
-    pkgs.htop
-  ];
+  home.packages = basic_packages;
 
   imports = [
-    ../../src/neovim.nix
-    ../../src/tmux.nix
+    ../src/neovim.nix
+    ../src/tmux.nix
   ];
 
   # Let Home Manager install and manage itself.
@@ -151,8 +99,8 @@ in
 
   # git
   programs.git.enable = true;
-  programs.gitui.enable = true;
   programs.lazygit.enable = true;
+  programs.gitui.enable = true;
   programs.git.userEmail = "gihoong7@gmail.com";
   programs.git.userName = "Ch1keen";
 
