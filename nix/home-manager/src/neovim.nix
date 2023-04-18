@@ -2,6 +2,7 @@
 
 {
   programs.neovim.enable = true;
+  programs.neovim.defaultEditor = true;
   programs.neovim.coc.enable = true;
   programs.neovim.coc.settings = {
     # Python: pyright

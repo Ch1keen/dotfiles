@@ -20,6 +20,12 @@
       modules = [ platform/linux/home.nix ];
     };
 
+    # home-manager switch --flake '/home/ch1keen/.config/nixpkgs#ch1keen-light'
+    homeConfigurations.ch1keen-light = home-manager.lib.homeManagerConfiguration {
+      pkgs = nixpkgs.legacyPackages.x86_64-linux;
+      modules = [ platform/linux/light.nix ] ;
+    };
+
     # darwin-rebuild switch --flake ~/.config/nix-darwin/
     darwinConfigurations = {
       "hanjeongjun-ui-MacBookPro" = darwin.lib.darwinSystem {
