@@ -39,6 +39,7 @@ in [
   pkgs.radare2
   pkgs.clang-analyzer
   pkgs.one_gadget
+  pkgs.metasploit
 
   # Virtualisation
   pkgs.qemu-utils

@@ -51,8 +51,8 @@ in
     oh-my-zsh = {
       enable = true;
       plugins = [
-	"git"
-	"command-not-found"
+        "git"
+        "command-not-found"
       ];
       theme = "fino-time";
     };
