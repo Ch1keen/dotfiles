@@ -7,6 +7,7 @@ let
   # for ruby
   ruby-with-my-packages = pkgs.ruby_3_2.withPackages (import ../../src/ruby-packages.nix);
 
+  packages = import ../../src/packages.nix { inherit pkgs; };
 in
  {
   # Home Manager needs a bit of information about you and the

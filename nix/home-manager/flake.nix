@@ -23,7 +23,7 @@
     # home-manager switch --flake '/home/ch1keen/.config/nixpkgs#ch1keen-light'
     homeConfigurations.ch1keen-light = home-manager.lib.homeManagerConfiguration {
       pkgs = nixpkgs.legacyPackages.x86_64-linux;
-      modules = [ platform/linux/light.nix ] ;
+      modules = [ platform/light.nix ] ;
     };
 
     # darwin-rebuild switch --flake ~/.config/nix-darwin/

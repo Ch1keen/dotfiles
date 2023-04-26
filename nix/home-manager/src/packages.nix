@@ -39,6 +39,8 @@ in [
   pkgs.radare2
   pkgs.clang-analyzer
   pkgs.one_gadget
+  pkgs.gef
+  pkgs.pwndbg
 
   # Virtualisation
   pkgs.qemu-utils
