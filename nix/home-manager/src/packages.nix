@@ -41,6 +41,7 @@ in [
   pkgs.gef
   pkgs.pwndbg
   pkgs.upx
+  pkgs.metasploit
 
   # Virtualisation
   pkgs.qemu-utils
