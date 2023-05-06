@@ -36,11 +36,11 @@ in [
   pkgs.nodejs
 
   # Hacking Related
-  pkgs.radare2
   pkgs.clang-analyzer
   pkgs.one_gadget
   pkgs.gef
   pkgs.pwndbg
+  pkgs.upx
 
   # Virtualisation
   pkgs.qemu-utils

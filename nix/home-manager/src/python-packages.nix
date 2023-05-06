@@ -10,4 +10,6 @@ python-packages: with python-packages; [
   # Hacking Related
   pwntools
   angr
+  unicorn
+  qiling
 ]

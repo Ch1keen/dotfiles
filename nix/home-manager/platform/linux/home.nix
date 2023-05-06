@@ -25,6 +25,8 @@ in {
     pkgs.zap
     pkgs.ghidra
     #pkgs.burpsuite
+    pkgs.radare2
+    pkgs.rizin
   ] ++ basic_packages;
 
   # Korean Language
