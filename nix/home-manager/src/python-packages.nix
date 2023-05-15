@@ -3,6 +3,12 @@ python-packages: with python-packages; [
   requests
   flask
 
+  # Python Cryptography
+  pycryptodome
+  urllib3
+  cryptography
+  psutil
+
   # Python Development tools
   pylint
   autopep8
@@ -12,4 +18,5 @@ python-packages: with python-packages; [
   angr
   unicorn
   qiling
+  r2pipe
 ]
