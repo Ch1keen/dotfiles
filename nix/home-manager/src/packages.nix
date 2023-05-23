@@ -30,7 +30,6 @@ in [
   python-with-my-packages
   ruby-with-my-packages
   pkgs.rustup
-  pkgs.rust-analyzer
   pkgs.guile_3_0
   pkgs.chicken
   pkgs.nodejs
@@ -42,6 +41,7 @@ in [
   pkgs.pwndbg
   pkgs.upx
   pkgs.metasploit
+  pkgs.ronin
 
   # Virtualisation
   pkgs.qemu-utils
