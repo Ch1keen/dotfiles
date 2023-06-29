@@ -39,7 +39,7 @@ in [
   pkgs.pwndbg
   pkgs.upx
   pkgs.metasploit
-  pkgs.ronin
+  #pkgs.ronin
 
   # Virtualisation
   pkgs.qemu

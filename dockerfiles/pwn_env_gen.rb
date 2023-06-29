@@ -148,6 +148,7 @@ def generate_dockerfile(ubuntu_version:, ruby_version:)
     RUN r2pm init
     RUN r2pm -ci r2ghidra
     RUN r2pm -ci r2dec
+    RUN r2pm -ci r4ge
 
     # Just for fish...
     WORKDIR /hacks
