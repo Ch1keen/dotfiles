@@ -2,6 +2,7 @@
 
 let
   basic_packages = import ../../src/packages.nix { inherit pkgs; };
+  clang_packages = import ../../src/clang.nix { inherit pkgs; };
 in {
 
   imports = [ ../light.nix ];

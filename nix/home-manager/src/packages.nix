@@ -26,7 +26,6 @@ in [
 
   # Programming Languages
   pkgs.ghc
-  pkgs.clang
   python-with-my-packages
   ruby-with-my-packages
   pkgs.rustup
@@ -35,25 +34,21 @@ in [
   pkgs.nodejs
 
   # Hacking Related
-  pkgs.clang-analyzer
   pkgs.one_gadget
-  pkgs.gef
+  #pkgs.gef  # python 3.10 ropper 1.13.8 marked as broken in darwin
   pkgs.pwndbg
   pkgs.upx
   pkgs.metasploit
   #pkgs.ronin
 
   # Virtualisation
-  pkgs.qemu-utils
-  pkgs.cloud-utils
+  pkgs.qemu
+  #pkgs.cloud-utils
 
   # OCI(Open Container Initiative)
   pkgs.podman-compose
   pkgs.buildah
   pkgs.podman-tui
-
-  # Linter & LSP
-  pkgs.clang-tools
 
   # Eye candy
   pkgs.neofetch
