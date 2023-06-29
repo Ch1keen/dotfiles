@@ -12,4 +12,5 @@
     home = "/Users/hanjeongjun";
   };
   programs.zsh.enable = true;
+  system.stateVersion = 4;
 }
