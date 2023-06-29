@@ -27,6 +27,10 @@ in {
     #pkgs.burpsuite
     pkgs.radare2
     pkgs.rizin
+
+    # Radio Signal
+    pkgs.gqrx
+    pkgs.sigdigger
   ] ++ basic_packages;
 
   # Korean Language
