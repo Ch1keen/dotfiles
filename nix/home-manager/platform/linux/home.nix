@@ -10,7 +10,8 @@ in {
   home.packages = [
     # Utilities
     pkgs.gparted
-    pkgs.github-desktop
+    #pkgs.github-desktop # openssl-1.1.x is now deprecated
+    pkgs.simple-scan
 
     # Browser
     pkgs.tor-browser-bundle-bin
@@ -30,8 +31,8 @@ in {
     pkgs.rizin
 
     # Radio Signal
-    pkgs.gqrx
-    pkgs.sigdigger
+    #pkgs.gqrx
+    #pkgs.sigdigger
   ] ++ basic_packages;
 
   # Korean Language
