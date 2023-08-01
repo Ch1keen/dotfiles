@@ -229,11 +229,15 @@ def banner
   puts 'This is a simple utils for generating and managing pwnable environment'
   puts
   puts 'Commands'
-  puts '  install    Copy this file into $PATH'
-  puts "  generate   Generates Dockerfiles and it's composes"
-  puts '  bootstrap  Builds all images using generated dockerfiles'
-  puts '  help       Prints the help banner'
-  puts '  clean      Remove generated dockerfiles, composes and container images'
+  puts '  install     Copy this file into $PATH'
+  puts "  generate    Generates Dockerfiles and it's composes"
+  puts '  bootstrap   Builds all images using generated dockerfiles'
+  puts '  help        Prints the help banner'
+  puts '  clean       Remove generated dockerfiles, composes and container images'
+  puts
+  puts 'Options'
+  puts "  -f,--force  Generate files even they're already exist"
+  puts '  --dry-run   Run script, no file generate'
 end
 
 def install; end

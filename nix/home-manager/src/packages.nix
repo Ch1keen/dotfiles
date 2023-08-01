@@ -5,7 +5,7 @@ let
   python-with-my-packages = pkgs.python311.withPackages (import ./python-packages.nix);
 
   # for ruby
-  ruby-with-my-packages = pkgs.ruby_3_2.withPackages (import ./ruby-packages.nix);
+  ruby-with-my-packages = pkgs.ruby.withPackages (import ./ruby-packages.nix);
 in [
   pkgs.fd
   pkgs.bat
@@ -39,7 +39,7 @@ in [
   pkgs.pwndbg
   pkgs.upx
   pkgs.metasploit
-  #pkgs.ronin
+  pkgs.ronin
 
   # Virtualisation
   pkgs.qemu
