@@ -1,7 +1,5 @@
 #! /usr/bin/ruby
 
-require 'optparse'
-
 # Features:
 #   1. Generates Dockerfiles for:
 #     - Ubuntu 18.04
@@ -36,7 +34,7 @@ require 'optparse'
 #     -v --verbose
 #     -h --help
 
-CONFIG_RUBY_VERSION = '3.1.3'.freeze
+CONFIG_RUBY_VERSION = '3.1.4'.freeze
 CONFIG_GENERATE_PATH = '/home/ch1keen/hacks'.freeze
 
 FLAG_BOOTSTRAP = 0
@@ -69,7 +67,8 @@ def check_dependencies
   __check_dependencies(
     podman: deps[:podman],
     docker: deps[:docker],
-    buildah: deps[:buildah])
+    buildah: deps[:buildah]
+  )
 
   if macos?
     puts '[?] Are you running this script on MacBook?'
@@ -77,6 +76,12 @@ def check_dependencies
   else
     core_pattern = '/proc/sys/kernel/core_pattern'.freeze
     print "[!] This is the content of #{core_pattern}:\n    " + IO.read(core_pattern)
+  end
+
+  if nixos?
+    puts '[?] Are you using NixOS? I suggest you to run command'
+    puts '    echo "|/run/current-system/systemd/lib/systemd/systemd-coredump %P %u %g %s %t %c %h" > /proc/sys/kernel/core_pattern'
+    puts '    with root permission.'
   end
 end
 
@@ -112,9 +117,7 @@ def generate_dockerfile(ubuntu_version:, ruby_version:)
     RUN apt update
     RUN apt install software-properties-common -y
     RUN apt install libc6:i386 libncurses5:i386 libstdc++6:i386 -y
-    RUN apt install build-essential netcat unzip pkg-config wget git curl fish locales -y
-    RUN apt install python3 python3-pip -y
-    RUN apt install zlib1g-dev libssl-dev -y
+    RUN apt install build-essential netcat unzip pkg-config wget git gdb curl fish locales python3 python3-pip zlib1g-dev libssl-dev -y
     RUN add-apt-repository ppa:neovim-ppa/stable
     RUN apt update
     RUN apt install neovim -y
@@ -132,20 +135,15 @@ def generate_dockerfile(ubuntu_version:, ruby_version:)
 
     RUN rbenv install #{ruby_version}
     RUN rbenv global #{ruby_version}
-    RUN /root/.rbenv/shims/gem install one_gadget pwntools
-
+    RUN /root/.rbenv/shims/gem install one_gadget pwntools ronin
     RUN python3 -m pip install --upgrade pip
-    RUN python3 -m pip install --upgrade pwntools
-    RUN python3 -m pip install --upgrade r2pipe
+    RUN python3 -m pip install --upgrade pwntools r2pipe
 
-    RUN apt install gdb -y
-    RUN git clone https://github.com/pwndbg/pwndbg
-    WORKDIR /root/pwndbg
-    RUN ./setup.sh
+    RUN bash -c "$(curl -fsSL https://gef.blah.cat/sh)"
 
     WORKDIR /root
     RUN git clone https://github.com/radare/radare2 && radare2/sys/install.sh
-    RUN r2pm init
+    RUN r2pm -U
     RUN r2pm -ci r2ghidra
     RUN r2pm -ci r2dec
     RUN r2pm -ci r4ge
@@ -159,12 +157,16 @@ def generate_dockerfile(ubuntu_version:, ruby_version:)
     ENTRYPOINT [ "/usr/bin/fish" ]
   DOCKERFILE
 
-  if File.exist? "./#{ubuntu_version}/Dockerfile"
+  if File.exist?("./#{ubuntu_version}/Dockerfile") && !force?
     raise "Cannot generate files: There is a file in ./#{ubuntu_version}/Dockerfile\nUse --force to ignore this error.\n(Files will be overwritten!)"
   end
 
-  Dir.mkdir(ubuntu_version) unless Dir.exist? "./#{ubuntu_version}"
-  File.write("./#{ubuntu_version}/Dockerfile", generated_dockerfile)
+  if dry_run?
+    puts "[!] It is time to write Dockerfiles to directory, but won't write them because it is dry run."
+  else
+    Dir.mkdir(ubuntu_version) unless Dir.exist? "./#{ubuntu_version}"
+    File.write("./#{ubuntu_version}/Dockerfile", generated_dockerfile)
+  end
 end
 
 def generate_compose(ubuntu_version:, path:)
@@ -182,6 +184,7 @@ def generate_compose(ubuntu_version:, path:)
         build: .
         image: #{ENV['USER']}/pwnable:#{ubuntu_version}
         container_name: pwnable-#{ubuntu_version}
+        #{'priviledged: true' unless macos?}
         stdin_open: true
         tty: true
         cap_add:
@@ -190,14 +193,16 @@ def generate_compose(ubuntu_version:, path:)
           - #{path}:/hacks
   COMPOSE
 
-  generated_compose + '    priviledged: true' unless macos?
-
-  if File.exist? "./#{ubuntu_version}/docker-compose.yaml"
+  if File.exist?("./#{ubuntu_version}/docker-compose.yaml") && !force?
     raise "Cannot generate files: There are ./#{ubuntu_version}/docker-compose.yaml\nUse --force to ignore this error.\n(Files will be overwritten!)"
   end
 
-  Dir.mkdir(ubuntu_version) unless Dir.exist? "./#{ubuntu_version}"
-  File.write("./#{ubuntu_version}/docker-compose.yaml", generated_compose)
+  if dry_run?
+    puts "[!] It is time to write compose files to directory, but won't write them because it is dry run."
+  else
+    Dir.mkdir(ubuntu_version) unless Dir.exist? "./#{ubuntu_version}"
+    File.write("./#{ubuntu_version}/docker-compose.yaml", generated_compose)
+  end
 end
 
 def generate
@@ -222,7 +227,19 @@ def generate
 end
 
 def macos?
-  RUBY_PLATFORM.include? "darwin"
+  RUBY_PLATFORM.include? 'darwin'
+end
+
+def nixos?
+  File.exist?('/etc/NIXOS') || File.read('/etc/os-release').include?('NixOS')
+end
+
+def dry_run?
+  ARGV.include? '--dry-run'
+end
+
+def force?
+  ARGV.include?('--force') or ARGV.include?('-f')
 end
 
 def banner
@@ -242,16 +259,29 @@ end
 
 def install; end
 
+def build_image(version:)
+  system("buildah build -t #{ENV['USER']}/pwnable:#{version} #{version}/Dockerfile") ||
+    raise("While building the image based on Ubuntu #{version}, an error occured.")
+end
+
+def bootstrap
+  generate if !(File.exist?('18.04/Dockerfile') &&
+                File.exist?('20.04/Dockerfile') &&
+                File.exist?('22.04/Dockerfile')) || force?
+
+  # podman build -f ./Dockerfile -t ch1keen/pwnable:22.04 .
+  build_image(version: '18.04')
+  build_image(version: '20.04')
+  build_image(version: '22.04')
+end
+
 def run
-  case ARGV[0]
-  when 'install'
-    puts 'Not implemented'
-  when 'generate'
+  if ARGV.include? 'install'
+    install
+  elsif ARGV.include? 'generate'
     generate
-  when 'bootstrap'
-    puts 'Not implemented'
-  when 'help'
-    banner
+  elsif ARGV.include? 'bootstrap'
+    bootstrap
   else
     banner
   end
