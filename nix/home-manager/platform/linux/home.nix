@@ -10,7 +10,7 @@ in {
   home.packages = [
     # Utilities
     pkgs.gparted
-    #pkgs.github-desktop # openssl-1.1.x is now deprecated
+    pkgs.github-desktop
     pkgs.simple-scan
 
     # Browser
@@ -29,6 +29,7 @@ in {
     #pkgs.burpsuite
     pkgs.radare2
     pkgs.rizin
+    pkgs.gef  # python3.10 ropper is broken on darwin
 
     # Radio Signal
     #pkgs.gqrx
@@ -64,4 +65,16 @@ in {
 
   # Alacritty
   programs.alacritty.enable = true;
+  programs.alacritty.settings = {
+    font.size = 8;
+  };
+
+  # Picom
+  services.picom = {
+    enable = true;
+    fade = true;
+    inactiveOpacity = 0.9;
+    shadow = true;
+    fadeDelta = 4;
+  };
 }
