@@ -28,8 +28,11 @@ in
 
   # Let Home Manager install and manage itself.
   programs.home-manager.enable = true;
-  programs.direnv.enable = true;
-  programs.direnv.nix-direnv.enable = true;
+  programs.direnv = {
+    enable = true;
+    enableZshIntegration = true;
+    nix-direnv.enable = true;
+  };
 
   # Other programs
   fonts.fontconfig.enable = true;
@@ -45,9 +48,6 @@ in
     shellAliases = {
       "g++" = "c++";
     };
-    initExtra = ''
-      eval "$(direnv hook zsh)"
-    '';
     oh-my-zsh = {
       enable = true;
       plugins = [
