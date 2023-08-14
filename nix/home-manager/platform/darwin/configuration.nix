@@ -2,6 +2,7 @@
 {
   services.nix-daemon.enable = true;
   nix.package = pkgs.nixVersions.unstable;
+  nix.settings.sandbox = false;
   nix.extraOptions = ''
     build-users-group = nixbld
     experimental-features = nix-command flakes

@@ -8,11 +8,7 @@ let
   ruby-with-my-packages = pkgs.ruby.withPackages (import ./ruby-packages.nix);
 in [
   pkgs.fd
-  pkgs.bat
-  pkgs.bat-extras.prettybat
   pkgs.file
-  pkgs.ripgrep
-  pkgs.jq
   pkgs.unzip
   pkgs.wget
   pkgs.cmake
@@ -39,7 +35,7 @@ in [
   pkgs.pwndbg
   pkgs.upx
   pkgs.metasploit
-  pkgs.ronin
+  #pkgs.ronin
 
   # Virtualisation
   pkgs.qemu

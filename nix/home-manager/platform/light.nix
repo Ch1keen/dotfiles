@@ -58,6 +58,16 @@ in
     };
   };
 
+  # Modern Unix
+  programs.bat.enable = true;
+  programs.bat.extraPackages = with pkgs.bat-extras; [ batgrep prettybat ];
+  programs.ripgrep.enable = true;
+  programs.jq.enable = true;
+  programs.exa.enable = true;
+  programs.exa.enableAliases = true;
+  programs.exa.icons = true;
+  programs.less.enable = true;
+
   # opam (OCaml)
   programs.opam = {
     enable = true;
@@ -101,8 +111,10 @@ in
   programs.git.enable = true;
   programs.lazygit.enable = true;
   programs.gitui.enable = true;
+
   programs.git.userEmail = "gihoong7@gmail.com";
   programs.git.userName = "Ch1keen";
+  programs.git.delta.enable = true;
 
   # irssi
   programs.irssi.enable = true;
