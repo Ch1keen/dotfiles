@@ -28,6 +28,10 @@ in [
   pkgs.guile_3_0
   pkgs.chicken
   pkgs.nodejs
+  pkgs.php
+
+  # Web Development
+  pkgs.static-web-server
 
   # Hacking Related
   pkgs.one_gadget
@@ -36,6 +40,8 @@ in [
   pkgs.upx
   pkgs.metasploit
   #pkgs.ronin
+  pkgs.exiftool
+  pkgs.exiftags
 
   # Virtualisation
   pkgs.qemu
