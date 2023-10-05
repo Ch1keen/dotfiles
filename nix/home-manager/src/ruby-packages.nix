@@ -6,4 +6,6 @@ ruby-packages: with ruby-packages; [
   solargraph
   rubocop
   rspec
+
+  pwntools
 ]

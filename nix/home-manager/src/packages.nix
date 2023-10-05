@@ -34,7 +34,7 @@ in [
   pkgs.static-web-server
 
   # Hacking Related
-  pkgs.one_gadget
+  #pkgs.one_gadget
   #pkgs.gef  # python 3.10 ropper 1.13.8 marked as broken in darwin
   pkgs.pwndbg
   pkgs.upx
