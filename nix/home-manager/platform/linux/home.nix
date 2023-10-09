@@ -34,7 +34,7 @@ in {
     # Radio Signal
     #pkgs.gqrx
     #pkgs.sigdigger
-  ] ++ basic_packages;
+  ] ++ basic_packages ++ clang_packages;
 
   # Korean Language
   home.sessionVariables = {
@@ -59,6 +59,9 @@ in {
     };
     global_hotkeys.S-Space.behavior.Toggle = ["Hangul" "Latin"];
   };
+
+  # bluetooth
+  services.blueman-applet.enable = true;
 
   # qutebrowser
   programs.qutebrowser.enable = true;

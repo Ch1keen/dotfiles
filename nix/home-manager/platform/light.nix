@@ -63,9 +63,9 @@ in
   programs.bat.extraPackages = with pkgs.bat-extras; [ batgrep prettybat ];
   programs.ripgrep.enable = true;
   programs.jq.enable = true;
-  programs.exa.enable = true;
-  programs.exa.enableAliases = true;
-  programs.exa.icons = true;
+  programs.eza.enable = true;
+  programs.eza.enableAliases = true;
+  programs.eza.icons = true;
   programs.less.enable = true;
 
   # opam (OCaml)
