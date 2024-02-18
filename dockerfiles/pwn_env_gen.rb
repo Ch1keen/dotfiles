@@ -2,9 +2,9 @@
 
 # Features:
 #   1. Generates Dockerfiles for:
-#     - Ubuntu 18.04
 #     - Ubuntu 20.04
 #     - Ubuntu 22.04
+#     - Ubuntu 24.04
 #   2. Checks for dependencies
 #   3. Manages dependencies and version in docker-related files
 #   4. Help generating core files when you're working inside of the docker
@@ -34,8 +34,8 @@
 #     -v --verbose
 #     -h --help
 
-CONFIG_RUBY_VERSION = '3.1.4'.freeze
-CONFIG_GENERATE_PATH = '/home/ch1keen/hacks'.freeze
+CONFIG_RUBY_VERSION = '3.2.3'.freeze
+UBUNTU_VERSIONS = ['20.04', '22.04', '24.04']
 
 FLAG_BOOTSTRAP = 0
 
@@ -73,15 +73,13 @@ def check_dependencies
   if macos?
     puts '[?] Are you running this script on MacBook?'
     puts '    Default core pattern of container is just "core" AFAIK.'
-  else
-    core_pattern = '/proc/sys/kernel/core_pattern'.freeze
-    print "[!] This is the content of #{core_pattern}:\n    " + IO.read(core_pattern)
-  end
-
-  if nixos?
+  elsif nixos?
     puts '[?] Are you using NixOS? I suggest you to run command'
     puts '    echo "|/run/current-system/systemd/lib/systemd/systemd-coredump %P %u %g %s %t %c %h" > /proc/sys/kernel/core_pattern'
     puts '    with root permission.'
+  else
+    core_pattern = '/proc/sys/kernel/core_pattern'.freeze
+    print "[!] This is the content of #{core_pattern}:\n    " + IO.read(core_pattern)
   end
 end
 
@@ -110,14 +108,23 @@ def generate_dockerfile(ubuntu_version:, ruby_version:)
   # if parameters are empty, raise an error.
 
   generated_dockerfile = <<~DOCKERFILE
+    FROM ruby:#{ruby_version} AS rubyimg
+    RUN rm -r /usr/local/lib/python3*
+
     FROM ubuntu:#{ubuntu_version}
     WORKDIR /root
+
+    COPY --from=rubyimg /usr/local/bin/irb /usr/local/bin/irb
+    COPY --from=rubyimg /usr/local/bin/ruby /usr/local/bin/ruby
+    COPY --from=rubyimg /usr/local/bin/gem /usr/local/bin/gem
+    COPY --from=rubyimg /usr/local/lib/ /usr/local/lib
+    COPY --from=rubyimg /usr/local/include/ /usr/local/include/
 
     RUN dpkg --add-architecture i386
     RUN apt update
     RUN apt install software-properties-common -y
     RUN apt install libc6:i386 libncurses5:i386 libstdc++6:i386 -y
-    RUN apt install build-essential netcat unzip pkg-config wget git gdb curl fish locales python3 python3-pip zlib1g-dev libssl-dev -y
+    RUN apt install build-essential netcat unzip pkg-config wget git gdb curl fish locales python3 python3-pip zlib1g-dev libssl-dev ninja-build meson -y
     RUN add-apt-repository ppa:neovim-ppa/stable
     RUN apt update
     RUN apt install neovim -y
@@ -128,14 +135,7 @@ def generate_dockerfile(ubuntu_version:, ruby_version:)
     ENV LANGUAGE en_US:en
     ENV LANG en_US.UTF-8
 
-    RUN git clone https://github.com/rbenv/rbenv.git /root/.rbenv
-    ENV PATH=/root/.rbenv/bin:$PATH
-    RUN wget -q https://github.com/rbenv/rbenv-installer/raw/HEAD/bin/rbenv-installer -O- | bash
-    RUN echo "status --is-interactive; and rbenv init - fish | source" >> /etc/fish/config.fish
-
-    RUN rbenv install #{ruby_version}
-    RUN rbenv global #{ruby_version}
-    RUN /root/.rbenv/shims/gem install one_gadget pwntools ronin
+    RUN gem install one_gadget pwntools ronin
     RUN python3 -m pip install --upgrade pip
     RUN python3 -m pip install --upgrade pwntools r2pipe
 
@@ -169,12 +169,14 @@ def generate_dockerfile(ubuntu_version:, ruby_version:)
   end
 end
 
-def generate_compose(ubuntu_version:, path:)
+def generate_compose(ubuntu_version:)
   # This method generates `docker-compose.yaml` with given parameters.
   # If file exists in target directory but `--force` is not flagged,
   # the methods prints an error message and raises FileExistsError.
 
   # if parameters are empty, raise an error.
+
+  path = macos? ? "/Users/#{ENV['USER']}/hacks" : '/home/ch1keen/hacks'.freeze
 
   generated_compose = <<~COMPOSE
     version: '3.9'
@@ -210,16 +212,14 @@ def generate
   # TODO: some fancy CLI animations
   check_dependencies
 
-  ubuntu_versions = ['18.04', '20.04', '22.04']
-
   puts '[+] Generating Dockerfiles...'
-  ubuntu_versions.each do |version|
+  UBUNTU_VERSIONS.each do |version|
     generate_dockerfile(ubuntu_version: version, ruby_version: CONFIG_RUBY_VERSION)
   end
 
   puts '[+] Generating docker-config.yaml...'
-  ubuntu_versions.each do |version|
-    generate_compose(ubuntu_version: version, path: CONFIG_GENERATE_PATH)
+  UBUNTU_VERSIONS.each do |version|
+    generate_compose(ubuntu_version: version)
   end
 
   # TODO: build podman images
@@ -240,6 +240,15 @@ end
 
 def force?
   ARGV.include?('--force') or ARGV.include?('-f')
+end
+
+def files_exist?
+  UBUNTU_VERSIONS
+    .reduce(true) do |accumulator, version|
+      accumulator &&
+        File.exist?("#{version}/Dockerfile") &&
+        File.exist?("#{version}/docker-compose.yaml")
+    end
 end
 
 def banner
@@ -265,14 +274,10 @@ def build_image(version:)
 end
 
 def bootstrap
-  generate if !(File.exist?('18.04/Dockerfile') &&
-                File.exist?('20.04/Dockerfile') &&
-                File.exist?('22.04/Dockerfile')) || force?
+  generate if !files_exist? || force?
 
   # podman build -f ./Dockerfile -t ch1keen/pwnable:22.04 .
-  build_image(version: '18.04')
-  build_image(version: '20.04')
-  build_image(version: '22.04')
+  UBUNTU_VERSIONS.map { |version| build_image(version: version) }
 end
 
 def run
