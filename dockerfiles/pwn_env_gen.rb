@@ -186,7 +186,7 @@ def generate_compose(ubuntu_version:)
         build: .
         image: #{ENV['USER']}/pwnable:#{ubuntu_version}
         container_name: pwnable-#{ubuntu_version}
-        #{'priviledged: true' unless macos?}
+        #{'privileged: true' unless macos?}
         stdin_open: true
         tty: true
         cap_add:
