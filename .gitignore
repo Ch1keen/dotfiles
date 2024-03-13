@@ -1,0 +1,2 @@
+# Ignore Dockerfiles
+dockerfiles/??.04/*
