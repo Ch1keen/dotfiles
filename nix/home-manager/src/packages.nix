@@ -15,11 +15,6 @@ in [
   pkgs.gnumake
   pkgs.rlwrap
 
-  # Fonts
-  pkgs.d2coding
-  pkgs.nerdfonts
-  pkgs.nanum
-
   # Programming Languages
   pkgs.ghc
   python-with-my-packages

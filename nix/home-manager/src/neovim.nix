@@ -88,7 +88,7 @@
 
     vimPlugins.vim-airline
     vimPlugins.bufferline-nvim
-    vimPlugins.nvim-ts-rainbow
+    vimPlugins.rainbow-delimiters-nvim
     vimPlugins.vim-nix
 
     {

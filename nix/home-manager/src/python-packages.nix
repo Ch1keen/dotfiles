@@ -2,6 +2,7 @@ python-packages: with python-packages; [
   # Python Starter Pack
   requests
   flask
+  beautifulsoup4
 
   # Python Cryptography
   pycryptodome
@@ -15,7 +16,7 @@ python-packages: with python-packages; [
 
   # Hacking Related
   pwntools
-  angr
+  #angr
   unicorn
   qiling
   r2pipe

@@ -8,6 +8,10 @@ in {
   imports = [ ../light.nix ];
 
   home.packages = [
+    # Nerdfont
+    pkgs.nerdfonts
+    pkgs.nanum
+
     # Utilities
     pkgs.gparted
     pkgs.github-desktop
