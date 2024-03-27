@@ -72,7 +72,7 @@ def check_dependencies
 
   if macos?
     puts '[?] Are you running this script on MacBook?'
-    puts '    Default core pattern of container is just "core" AFAIK.'
+    puts '    Default core pattern of a docker container is just "core" AFAIK.'
   elsif nixos?
     puts '[?] Are you using NixOS? I suggest you to run command'
     puts '    echo "|/run/current-system/systemd/lib/systemd/systemd-coredump %P %u %g %s %t %c %h" > /proc/sys/kernel/core_pattern'
@@ -87,7 +87,7 @@ def __check_dependencies(podman:, docker:, buildah:)
   # First, check for podman. It could be good when podman is aliased to docker.
   if !podman
     # Podman is not installed
-    puts '[!] podman is not installed. I highly recommend you to use podman.'
+    puts '[!] podman is not installed. I recommend you to use podman.'
 
     unless docker
       puts '[!] docker is not installed. But this script will generate the scripts anyway.'
@@ -124,7 +124,7 @@ def generate_dockerfile(ubuntu_version:, ruby_version:)
     RUN apt update
     RUN apt install software-properties-common -y
     RUN apt install libc6:i386 libncurses5:i386 libstdc++6:i386 -y
-    RUN apt install build-essential netcat unzip pkg-config wget git gdb curl fish locales python3 python3-pip zlib1g-dev libssl-dev ninja-build meson -y
+    RUN apt install build-essential netcat unzip pkg-config wget git gdb curl fish locales python3 python3-pip zlib1g-dev libssl-dev ninja-build meson tmux -y
     RUN add-apt-repository ppa:neovim-ppa/stable
     RUN apt update
     RUN apt install neovim -y
