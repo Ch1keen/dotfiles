@@ -1,0 +1,94 @@
+#!/usr/bin/ruby
+require 'tempfile'
+require 'pry-byebug'
+require 'open3'
+
+def run_tmux_and_sendkeys
+  pid = Process.spawn('tmux', '-2', 'new', '-s', 'r2tmux')
+  # It will take its time to open r2tmux session.
+  sleep(0.1) until system('tmux list-sessions | grep r2tmux')
+  `tmux send-keys -t r2tmux.0 'ruby r2tmux #{ARGV.join(' ')}' ENTER`
+  `sleep infinity`
+  wait pid
+  exit 0
+end
+
+def write_temp_rarun2(tty)
+  content = <<~RARUN2
+    #!#{`which rarun2`}
+    stdio=#{tty}
+
+  RARUN2
+
+  file = Tempfile.new('tmp.rarun2')
+  puts "[+] Writing a script: #{file.path}"
+  puts content
+
+  file.write content
+  file.close
+
+  file
+end
+
+def launch_radare2_debug(tty)
+  file = write_temp_rarun2 tty
+
+  # https://reverseengineering.stackexchange.com/questions/16428/debugging-with-radare2-using-two-terminals
+  pid = if ARGV.length == 1
+          Process.spawn('r2', '-e', "dbg.profile=#{file.path}", '-dAA', ARGV[0])
+        else
+          Process.spawn('r2', '-e', "dbg.profile=#{file.path}", *ARGV)
+        end
+
+  Process.waitpid pid
+  file.unlink
+end
+
+
+# 1. Check whether the `radare2` and `rarun2` command is available
+unless system('which r2 > /dev/null')
+  puts '[-] r2 is not available in this system!'
+  exit 1
+end
+
+unless system('which rarun2 > /dev/null')
+  puts '[-] r2 is not available in this system!'
+  exit 1
+end
+
+
+# 2. Check whether the `tmux` command is available
+unless system('which tmux > /dev/null')
+  puts '[-] tmux is not available in this system!'
+  exit 1
+end
+
+# 3. Check it is inside of the tmux session
+if ENV['TMUX'].nil?
+  puts "[?] It seems you're not in the tmux session."
+  puts "    Would you allow #{$PROGRAM_NAME} to create it? (y/N)"
+
+  # gets.chomp won't work if there are argv's
+  # https://stackoverflow.com/questions/12041492/ruby-whats-the-difference-between-stdin-gets-and-gets-chomp
+  case $stdin.gets.chomp
+  when 'yes'
+    run_tmux_and_sendkeys
+  when 'Y'
+    run_tmux_and_sendkeys
+  when 'y'
+    run_tmux_and_sendkeys
+  else
+    exit 1
+  end
+end
+
+# This is definition of `tmux_setup()` funciton in the GEF.
+# https://github.com/hugsy/gef/blob/main/gef.py#L10374
+# pane, tty = `tmux splitw -hP -p 25 -F\#{session_name}:\#{window_index}.\#{pane_index}-\#{pane_tty} 'sleep infinity'`.chomp.split('-')
+tty, pane_idx = `tmux splitw -hP -p 25 -F\#{pane_tty}-\#{pane_index} 'sleep infinity'`.chomp.split('-')
+`tmux select-pane -L`
+
+launch_radare2_debug(tty)
+`tmux kill-pane -t #{pane_idx}`
+
+puts 'Happy Hacking!'
