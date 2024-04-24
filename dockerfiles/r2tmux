@@ -1,6 +1,5 @@
-#!/usr/bin/ruby
+#!/usr/local/bin/ruby
 require 'tempfile'
-require 'pry-byebug'
 require 'open3'
 
 def run_tmux_and_sendkeys
