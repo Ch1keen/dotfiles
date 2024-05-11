@@ -24,14 +24,15 @@ class Ch1keenToolBox:
             pwnlib.context.context.log_level = 'debug'
         pwnlib.context.context.binary = path
 
+        import sys
         # Target Setup
-        if port is None and remote_addr is None:
+        if len(sys.argv) == 1 or sys.argv[1] == 'local' or (port is None and remote_addr is None):
             # The target is located in the local
 
             e = pwnlib.elf.elf.ELF(path)
             self.target  = pwnlib.tubes.process.process(path)
 
-        elif type(port) is int:
+        elif type(port) is int and sys.argv[1] == 'remote':
             # The target is located in the remote
             self.target = pwnlib.tubes.remote.remote(remote_addr, port)
 
