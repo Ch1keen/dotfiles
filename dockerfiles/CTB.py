@@ -35,14 +35,13 @@ class Ch1keenToolBox:
         elif type(port) is int and sys.argv[1] == 'remote':
             # The target is located in the remote
             self.target = pwnlib.tubes.remote.remote(remote_addr, port)
+            self.IS_REMOTE = True
 
         e = pwnlib.elf.elf.ELF(path)
         self.got     = e.got
         self.plt     = e.plt
         self.symbols = e.symbols
         self.bss     = e.bss()
-
-
 
 
     # Frequently Used Functions
@@ -69,37 +68,46 @@ class Ch1keenToolBox:
 
 
     # Debugger
-    def r2(self, r2_cmds: str|None = None):
-        # Check radare2 or rizin is available
-        r2_path = shutil.which('r2') or shutil.which('rz') or shutil.which('radare2') or shutil.which('rizin')
-        if not r2_path:
-            log.failure("Cannot find where the radare2/rizin is...")
+    def radare2(self, r2_cmds: str|None = None, r2_path: str|None = None):
+        self.r2(r2_cmds, r2_path)
+
+    def rz(self, rz_cmds: str|None = None):
+        self.r2(r2_cmds = rz_cmds, r2_path=shutil.which('rizin'))
+
+    def rizin(self, rz_cmds: str|None = None):
+        self.r2(r2_cmds = rz_cmds, r2_path=shutil.which('rizin'))
+
+
+    def r2(self, r2_cmds: str|None = None, r2_path: str|None = None):
+        if isinstance(self.target, pwnlib.tubes.remote.remote):
             return
+
+        if r2_path is None:
+            # Check radare2 or rizin is available
+            r2_path = shutil.which('r2') or shutil.which('radare2') or shutil.which('rizin')
+            if not r2_path:
+                log.failure("Cannot find where the radare2/rizin is...")
+                return
 
         # Tmux support first
         tmux_path = shutil.which('tmux')
         if not tmux_path:
-            log.failure("Cannot find where the radare2/rizin is...")
+            log.failure("Cannot find where the tmux is...")
             return
 
-        #breakpoint()
         log.info("Waiting for a debugger: Radare2/Rizin...")
         pid = pwnlib.util.proc.pidof(self.target)[0]
 
         if r2_cmds is None:
-            pwnlib.util.misc.run_in_new_terminal(f'r2 -d {pid}')
+            pwnlib.util.misc.run_in_new_terminal(f'{r2_path} -d {pid}')
             pwnlib.util.proc.wait_for_debugger(pid)
         else:
             with NamedTemporaryFile("w") as tmpfp:
                 tmpfp.write(r2_cmds.strip())
                 tmpfp.flush()
-                pwnlib.util.misc.run_in_new_terminal(f'r2 -i {tmpfp.name} -d {pid}')
+                pwnlib.util.misc.run_in_new_terminal(f'{r2_path} -i {tmpfp.name} -d {pid}')
                 time.sleep(0.2)
                 pwnlib.util.proc.wait_for_debugger(pid)
-
-
-    def rz(self):
-        self.r2()
 
 
 # Global functions
@@ -108,6 +116,9 @@ p64: Callable[[int], bytes] = pwnlib.util.packing.make_packer(64)
 
 u32: Callable[[bytes], int] = pwnlib.util.packing.make_unpacker(32)
 u64: Callable[[bytes], int] = pwnlib.util.packing.make_unpacker(64)
+
+to_bytes: Callable[[int], bytes] = lambda x: str(x).encode()
+to_hex:   Callable[[int], bytes] = lambda x: hex(x).encode()
 
 pause = pwnlib.ui.pause
 
