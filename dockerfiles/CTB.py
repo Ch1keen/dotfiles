@@ -105,9 +105,8 @@ class Ch1keenToolBox:
             with NamedTemporaryFile("w") as tmpfp:
                 tmpfp.write(r2_cmds.strip())
                 tmpfp.flush()
-                pwnlib.util.misc.run_in_new_terminal(f'{r2_path} -i {tmpfp.name} -d {pid}')
-                time.sleep(0.2)
-                pwnlib.util.proc.wait_for_debugger(pid)
+                gdb_pid = pwnlib.util.misc.run_in_new_terminal(f'{r2_path} -i {tmpfp.name} -d {pid}')
+                pwnlib.util.proc.wait_for_debugger(pid, gdb_pid)
 
 
 # Global functions
