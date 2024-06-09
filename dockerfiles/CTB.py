@@ -12,7 +12,6 @@ from pwn import log
 
 # System
 import shutil
-import time
 from typing import Callable
 from tempfile import NamedTemporaryFile
 
@@ -102,11 +101,20 @@ class Ch1keenToolBox:
             pwnlib.util.misc.run_in_new_terminal(f'{r2_path} -d {pid}')
             pwnlib.util.proc.wait_for_debugger(pid)
         else:
-            with NamedTemporaryFile("w") as tmpfp:
-                tmpfp.write(r2_cmds.strip())
-                tmpfp.flush()
-                gdb_pid = pwnlib.util.misc.run_in_new_terminal(f'{r2_path} -i {tmpfp.name} -d {pid}')
-                pwnlib.util.proc.wait_for_debugger(pid, gdb_pid)
+            tmpfp = NamedTemporaryFile("w", delete=False)
+            # Temporarily created file will be deleted when the script is successfully loaded.
+            tmpfp.write(f"!rm -f {tmpfp.name}\n" + r2_cmds.strip())
+            tmpfp.flush()
+
+            gdb_pid = pwnlib.util.misc.run_in_new_terminal(f'{r2_path} -i {tmpfp.name} -d {pid}')
+            pwnlib.util.proc.wait_for_debugger(pid, gdb_pid)
+            # Because it will take some time to initialize and load script,
+            # close() function will be executed *right after* the radare2 or
+            # rizin process was spawned.
+            #
+            # delete_on_close procedure will be problematic, the script won't
+            # exist, already deleted, when they trying to find the script.
+            tmpfp.close()
 
 
 # Global functions
