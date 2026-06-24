@@ -1,0 +1,130 @@
+#!/usr/bin/env ruby
+
+require 'tempfile'
+require 'open3'
+require 'shellwords'
+require 'timeout'
+
+def die(msg)
+  warn msg
+  exit 1
+end
+
+def have?(cmd)
+  system('sh', '-c', "command -v #{Shellwords.escape(cmd)} >/dev/null 2>&1")
+end
+
+def zellij!(*args)
+  out, err, st = Open3.capture3('zellij', *args)
+
+  unless st.success?
+    die <<~MSG
+      [-] zellij #{args.shelljoin} failed
+
+      stdout:
+      #{out}
+
+      stderr:
+      #{err}
+    MSG
+  end
+
+  out
+end
+
+def write_temp_rarun2(tty)
+  rarun2 = `which rarun2`.strip
+
+  file = Tempfile.new(['r2zellij', '.rr2'])
+  file.write <<~RARUN2
+    #!#{rarun2}
+    stdio=#{tty}
+  RARUN2
+  file.close
+
+  puts "[+] Writing rarun2 profile: #{file.path}"
+  puts File.read(file.path)
+
+  file
+end
+
+def launch_stdio_pane
+  tty_file = Tempfile.new(['r2zellij-tty', '.txt'])
+  tty_path = tty_file.path
+  tty_file.close
+  File.unlink(tty_path) rescue nil
+
+  pane_cmd = <<~SH
+    set -eu
+    tty > #{Shellwords.escape(tty_path)}
+    echo "[r2zellij] debuggee stdio: $(cat #{Shellwords.escape(tty_path)})"
+    exec sleep infinity
+  SH
+
+  # Zellij returns the newly created pane ID on stdout.
+  pane_id = zellij!(
+    'action', 'new-pane',
+    '--direction', 'right',
+    '--name', 'r2-stdio',
+    '--',
+    'sh', '-lc', pane_cmd
+  ).strip
+
+  Timeout.timeout(3) do
+    sleep 0.02 until File.exist?(tty_path) && File.size?(tty_path)
+  end
+
+  tty = File.read(tty_path).strip
+  die "[-] invalid tty from stdio pane: #{tty.inspect}" unless tty.start_with?('/dev/')
+
+  [pane_id, tty, tty_path]
+rescue Timeout::Error
+  die '[-] timeout while waiting for the Zellij stdio pane to report its tty'
+end
+
+def launch_radare2_debug(tty, argv)
+  profile = write_temp_rarun2(tty)
+
+  begin
+    if argv.length == 1
+      system('r2', '-e', "dbg.profile=#{profile.path}", '-dAA', argv[0])
+    else
+      system('r2', '-e', "dbg.profile=#{profile.path}", *argv)
+    end
+  ensure
+    profile.unlink rescue nil
+  end
+end
+
+# 1. Check dependencies.
+%w[r2 rarun2 zellij].each do |cmd|
+  die "[-] #{cmd} is not available in this system!" unless have?(cmd)
+end
+
+die "Usage: #{$PROGRAM_NAME} <r2/r2-debug-args...>" if ARGV.empty?
+
+# 2. Check whether we are inside Zellij.
+#
+# Zellij sets $ZELLIJ inside a Zellij session, and exposes the current pane ID
+# through $ZELLIJ_PANE_ID.
+unless ENV['ZELLIJ']
+  die "[-] not inside a Zellij session. Start zellij first, then run this script."
+end
+
+original_pane = ENV['ZELLIJ_PANE_ID']
+stdio_pane = nil
+tty_path = nil
+
+begin
+  stdio_pane, tty, tty_path = launch_stdio_pane
+
+  # Return focus to the pane where the script/r2 is running.
+  system('zellij', 'action', 'focus-pane-id', original_pane) if original_pane
+
+  launch_radare2_debug(tty, ARGV)
+ensure
+  system('zellij', 'action', 'close-pane', '--pane-id', stdio_pane) if stdio_pane
+  File.unlink(tty_path) rescue nil if tty_path
+end
+
+puts 'Happy Hacking!'
